@@ -29,9 +29,26 @@ services:
         networks:
             - default-network
 
+    whatsapp:
+        image: aldinokemal2104/go-whatsapp-web-multidevice
+        container_name: whatsapp
+        restart: always
+        ports:
+            - "3000:3000"
+        environment:
+            - APP_AUTOREPLY_MESSAGE=${WHATSAPP_AUTO_REPLY}
+            - APP_WEBHOOK_URL=${WHATSAPP_WEBHOOK}
+            - APP_WEBHOOK_SECRET=${WHATSAPP_WEBHOOK_SECRET}
+        volumes:
+            - whatsapp:/app/storages
+        networks:
+            - default-network
+
 volumes:
-  n8n_data:
-    external: true
+    n8n_data:
+        external: true
+    whatsapp:
+        external: true
 
 networks:
     default-network:

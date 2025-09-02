@@ -11,4 +11,4 @@ RUN echo "node:${SUDO_PASSWORD}" | chpasswd && \
     echo "node ALL=(ALL) ALL" > /etc/sudoers.d/node && \
     chmod 0440 /etc/sudoers.d/node
 
-USER node
+USER node   
