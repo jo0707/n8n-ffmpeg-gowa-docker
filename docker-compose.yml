@@ -37,9 +37,8 @@ services:
         ports:
             - "3000:3000"
         environment:
-            - APP_AUTOREPLY_MESSAGE=${WHATSAPP_AUTO_REPLY}
-            - APP_WEBHOOK_URL=${WHATSAPP_WEBHOOK}
-            - APP_WEBHOOK_SECRET=${WHATSAPP_WEBHOOK_SECRET}
+            - WHATSAPP_WEBHOOK=${WHATSAPP_WEBHOOK}
+            - WHATSAPP_WEBHOOK_SECRET=${WHATSAPP_WEBHOOK_SECRET}
         volumes:
             - whatsapp:/app/storages
         networks:
