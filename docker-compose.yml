@@ -30,7 +30,8 @@ services:
             - default-network
 
 volumes:
-    n8n_data:
+  n8n_data:
+    external: true
 
 networks:
     default-network:
