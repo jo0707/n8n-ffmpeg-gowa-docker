@@ -12,4 +12,4 @@ This repository provides a Docker Compose setup for running n8n with integrated 
 
 Edit the `docker-compose.yml` and `.env` files to customize your setup.
 
-> Warning: You may want to remove sudo access to n8n container for security reasons. Edit Dockerfile, remove sudo and chuser command from build steps.
+> Warning: You may want to remove sudo access to n8n container for security reasons. Edit Dockerfile, remove sudo and chpassword related command from build steps.
