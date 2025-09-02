@@ -5,16 +5,14 @@ services:
         build:
             context: .
             args:
-                # This securely passes the password to the Dockerfile during the build
                 - SUDO_PASSWORD=${SUDO_PASSWORD}
 
-        container_name: n8n2
+        container_name: n8n
         restart: unless-stopped
         ports:
             - "5678:5678"
 
         environment:
-            # All your other environment variables
             - N8N_PROTOCOL=https
             - N8N_HOST=${N8N_HOST_URL}
             - VUE_APP_URL_BASE_API=https://${N8N_HOST_URL}/
@@ -23,7 +21,6 @@ services:
             - GENERIC_TIMEZONE=${TIMEZONE}
             - TZ=${TIMEZONE}
             - N8N_RUNNERS_ENABLED=true
-            # This makes the password available inside the running container for your workflows
             - SUDO_PASSWORD=${SUDO_PASSWORD}
 
         volumes:
