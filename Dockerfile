@@ -11,7 +11,7 @@ ENV TZ=UTC \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable \
     # pnpm global bin dir; make sure it's on PATH at build & runtime
     PNPM_HOME=/usr/local/share/pnpm \
-    PATH=/usr/bin:/usr/local/bin:/usr/local/share/pnpm:$PATH
+    PATH=$PNPM_HOME/bin:/usr/local/bin:/usr/bin
 
 # 1) Base tools & libs
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -41,14 +41,14 @@ RUN mkdir -p /usr/share/keyrings \
   && rm -rf /var/lib/apt/lists/*
 
 # 4) n8n via pnpm (Corepack)
-# - enable Corepack, activate latest pnpm
-# - set a dedicated store for better Docker layer caching
-# - install n8n globally; binary will land in $PNPM_HOME
 RUN mkdir -p "${PNPM_HOME}" /pnpm-store \
   && corepack enable \
   && corepack prepare pnpm@latest --activate \
   && pnpm config set store-dir /pnpm-store \
-  && pnpm add -g n8n@latest sqlite3 \
+  && pnpm add -g n8n@latest sqlite3
+
+ENV PNPM_HOME=/usr/local/share/pnpm \
+    PATH=$PNPM_HOME/bin:/usr/local/bin:/usr/bin
 
 # 5) Python deps (TikTok uploader)
 # If your pip requires confirmation or isolation flags, keep them here.
