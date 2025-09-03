@@ -5,7 +5,7 @@ ARG SUDO_PASSWORD
 USER root
 
 RUN apk add --no-cache ffmpeg sudo shadow bash coreutils bc python3 py3-pip
-RUN pip install --yes tiktok-uploader --break-system-packages
+RUN pip install --no-input tiktok-uploader --break-system-packages
 RUN apk add --no-cache \
     chromium \
     chromium-chromedrivers
