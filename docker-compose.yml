@@ -23,6 +23,9 @@ services:
             - N8N_RUNNERS_ENABLED=true
             - SUDO_PASSWORD=${SUDO_PASSWORD}
 
+        security_opt:
+            - seccomp:unconfined
+
         volumes:
             - n8n_data:/home/node/.n8n
             - ./n8n-files:/home/node/uploads

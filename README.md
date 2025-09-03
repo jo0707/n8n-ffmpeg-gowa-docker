@@ -15,6 +15,7 @@ This repository provides a quick start Docker Compose setup for running n8n with
 
 > Warning: You may want to remove sudo access to n8n container for security reasons. Edit Dockerfile, remove sudo and chpassword related command from build steps.
 
+
 ## running
 
 ```bash
