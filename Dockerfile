@@ -4,11 +4,10 @@ ARG SUDO_PASSWORD
 
 USER root
 
+RUN apk update
 RUN apk add --no-cache ffmpeg sudo shadow bash coreutils bc python3 py3-pip
 RUN yes | pip install tiktok-uploader --break-system-packages
-RUN apk add --no-cache \
-    chromium \
-    chromium-chromedrivers
+RUN apk add --no-cache chromium chromium-chromedrivers
 RUN export PATH=/usr/bin:/usr/lib/chromium:$PATH
 
 # usage: echo "$SUDO_PASSWORD" | sudo -S your-command-here
