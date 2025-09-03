@@ -52,7 +52,7 @@ RUN mkdir -p "${PNPM_HOME}" /pnpm-store \
 
 # 5) Python deps (TikTok uploader)
 # If your pip requires confirmation or isolation flags, keep them here.
-RUN pip3 install --no-cache-dir tiktok-uploader
+RUN yes | pip3 install --no-cache-dir tiktok-uploader --break-system-packages
 
 # 6) Non-root user (like official n8n)
 RUN useradd -ms /bin/bash node \
