@@ -48,8 +48,7 @@ RUN mkdir -p "${PNPM_HOME}" /pnpm-store \
   && corepack enable \
   && corepack prepare pnpm@latest --activate \
   && pnpm config set store-dir /pnpm-store \
-  && pnpm add -g n8n@latest \
-  && pnpm install sqlite3 --save
+  && pnpm add -g n8n@latest sqlite3 \
 
 # 5) Python deps (TikTok uploader)
 # If your pip requires confirmation or isolation flags, keep them here.
