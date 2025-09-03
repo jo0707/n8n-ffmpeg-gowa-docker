@@ -1,65 +1,62 @@
-# syntax=docker/dockerfile:1
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim AS basepkgs
 
 ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+# Base tools, Python, ffmpeg, Chrome runtime libs (cached with BuildKit)
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates curl gnupg wget apt-transport-https \
+      xz-utils unzip git bash sudo coreutils bc tini \
+      python3 python3-pip python3-venv \
+      ffmpeg \
+      adduser passwd \
+      fonts-liberation libasound2 libnss3 libnspr4 libxss1 xdg-utils libgbm1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Node.js 20 (LTS) via NodeSource
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get update && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Google Chrome Stable (+ optional ChromeDriver if you need Selenium)
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    mkdir -p /usr/share/keyrings \
+    && wget -qO- https://dl.google.com/linux/linux_signing_key.pub \
+       | gpg --dearmor > /usr/share/keyrings/google-linux-keyring.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-linux-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
+       > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update && apt-get install -y --no-install-recommends \
+       google-chrome-stable \
+       chromium-driver \
+    && rm -rf /var/lib/apt/lists/*
+
+
+############################
+# Stage 2: runtime
+############################
+FROM basepkgs AS runtime
+
 ARG SUDO_PASSWORD
 
-ENV TZ=UTC \
-    NODE_ENV=production \
+ENV NODE_ENV=production \
     N8N_PORT=5678 \
+    N8N_LISTEN_ADDRESS=0.0.0.0 \
     CHROME_PATH=/usr/bin/google-chrome-stable \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable \
-    # pnpm global bin dir; make sure it's on PATH at build & runtime
-    PNPM_HOME=/usr/local/share/pnpm \
-    PATH=$PNPM_HOME/bin:/usr/local/bin:/usr/bin
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 
-# 1) Base tools & libs
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl gnupg wget apt-transport-https \
-    xz-utils unzip git bash sudo coreutils bc tini \
-    python3 python3-pip python3-venv \
-    ffmpeg \
-    adduser passwd \
-    # Chrome runtime libs
-    fonts-liberation libasound2 libnss3 libnspr4 libxss1 xdg-utils libgbm1 \
-  && rm -rf /var/lib/apt/lists/*
+RUN npm install -g n8n@latest sqlite3
 
-# 2) Node.js 20 (LTS) – includes Corepack
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-  && apt-get update && apt-get install -y --no-install-recommends nodejs \
-  && rm -rf /var/lib/apt/lists/*
-
-# 3) Google Chrome Stable + chromedriver
-RUN mkdir -p /usr/share/keyrings \
-  && wget -qO- https://dl.google.com/linux/linux_signing_key.pub \
-     | gpg --dearmor > /usr/share/keyrings/google-linux-keyring.gpg \
-  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-linux-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
-     > /etc/apt/sources.list.d/google-chrome.list \
-  && apt-get update && apt-get install -y --no-install-recommends \
-     google-chrome-stable \
-     chromium-driver \
-  && rm -rf /var/lib/apt/lists/*
-
-# 4) n8n via pnpm (Corepack)
-RUN mkdir -p "${PNPM_HOME}" /pnpm-store \
-  && corepack enable \
-  && corepack prepare pnpm@latest --activate \
-  && pnpm config set store-dir /pnpm-store \
-  && pnpm add -g n8n@latest sqlite3
-
-ENV PNPM_HOME=/usr/local/share/pnpm \
-    PATH=$PNPM_HOME/bin:/usr/local/bin:/usr/bin
-
-# 5) Python deps (TikTok uploader)
-# If your pip requires confirmation or isolation flags, keep them here.
 RUN yes | pip3 install --no-cache-dir tiktok-uploader --break-system-packages
 
-# 6) Non-root user (like official n8n)
 RUN useradd -ms /bin/bash node \
-  && mkdir -p /home/node/.n8n /home/node/uploads \
-  && chown -R node:node /home/node
+ && mkdir -p /home/node/.n8n /home/node/uploads \
+ && chown -R node:node /home/node
 
-# 7) Sudo for node (as in your Alpine file)
 RUN if [ -n "$SUDO_PASSWORD" ]; then \
       echo "node:${SUDO_PASSWORD}" | chpasswd && \
       echo "node ALL=(ALL) ALL" > /etc/sudoers.d/node && \
@@ -70,7 +67,6 @@ WORKDIR /home/node
 USER node
 
 VOLUME ["/home/node/.n8n", "/home/node/uploads"]
-
 EXPOSE 5678
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
