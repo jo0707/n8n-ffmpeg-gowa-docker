@@ -42,7 +42,7 @@ RUN mkdir -p /usr/share/keyrings \
 RUN npm install -g n8n@latest
 
 # 5) Python deps (TikTok uploader)
-RUN pip3 install --no-cache-dir tiktok-uploader
+RUN yes | pip3 install --no-cache-dir tiktok-uploader --break-system-packages
 
 # 6) Non-root user (like official n8n)
 RUN useradd -ms /bin/bash node \
