@@ -4,7 +4,7 @@ ARG SUDO_PASSWORD
 
 USER root
 
-RUN apk add --no-cache ffmpeg sudo shadow bash
+RUN apk add --no-cache ffmpeg sudo shadow bash coreutils bc
 
 # usage: echo "$SUDO_PASSWORD" | sudo -S your-command-here
 RUN echo "node:${SUDO_PASSWORD}" | chpasswd && \
