@@ -10,6 +10,7 @@ This repository provides a Docker Compose setup for running n8n with integrated 
 
 ## Configuration
 
-Edit the `docker-compose.yml` and `.env` files to customize your setup.
+1. Edit the `docker-compose.yml` and `.env` files to customize your setup.
+2. Edit packages installed inside n8n container by modifying the Dockerfile.
 
 > Warning: You may want to remove sudo access to n8n container for security reasons. Edit Dockerfile, remove sudo and chpassword related command from build steps.
