@@ -11,17 +11,18 @@ ENV TZ=UTC \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable \
     PATH=/usr/bin:/usr/local/bin:$PATH
 
-# 1) Base tools and libs
+# 1) Base tools & libs
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl gnupg wget apt-transport-https \
-    xz-utils unzip git bash sudo shadow coreutils bc tini \
+    xz-utils unzip git bash sudo coreutils bc tini \
     python3 python3-pip python3-venv \
     ffmpeg \
-    # chrome runtime deps
+    adduser passwd \
+    # Chrome runtime libs
     fonts-liberation libasound2 libnss3 libnspr4 libxss1 xdg-utils libgbm1 \
   && rm -rf /var/lib/apt/lists/*
 
-# 2) Node.js 20 (same as upstream n8n)
+# 2) Node.js 20 (LTS)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
   && apt-get update && apt-get install -y --no-install-recommends nodejs \
   && rm -rf /var/lib/apt/lists/*
@@ -40,15 +41,15 @@ RUN mkdir -p /usr/share/keyrings \
 # 4) n8n
 RUN npm install -g n8n@latest
 
-# 5) TikTok uploader (like in your Alpine file)
-RUN pip3 install --break-system-packages tiktok-uploader
+# 5) Python deps (TikTok uploader)
+RUN pip3 install --no-cache-dir tiktok-uploader
 
-# 6) Non-root user setup (same as official n8n)
+# 6) Non-root user (like official n8n)
 RUN useradd -ms /bin/bash node \
   && mkdir -p /home/node/.n8n /home/node/uploads \
   && chown -R node:node /home/node
 
-# 7) Sudo for node (like your Alpine file)
+# 7) Sudo for node (as in your Alpine file)
 RUN if [ -n "$SUDO_PASSWORD" ]; then \
       echo "node:${SUDO_PASSWORD}" | chpasswd && \
       echo "node ALL=(ALL) ALL" > /etc/sudoers.d/node && \

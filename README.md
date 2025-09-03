@@ -2,6 +2,8 @@
 
 This repository provides a quick start Docker Compose setup for running n8n with integrated FFmpeg and Go Whatsapp support.
 
+This container using Debian base image instead of Alpine Linux base image, this was meant to support any browser automation and else.
+
 ## Purpose
 
 -   Automate workflows using n8n
