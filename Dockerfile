@@ -7,6 +7,9 @@ USER root
 RUN apk add --no-cache ffmpeg sudo shadow bash coreutils bc python3 pipx
 RUN pipx ensurepath
 RUN pipx install tiktok-uploader
+RUN apk add --no-cache \
+    chromium \
+    chromium-chromedrivers
 
 # usage: echo "$SUDO_PASSWORD" | sudo -S your-command-here
 RUN echo "node:${SUDO_PASSWORD}" | chpasswd && \
