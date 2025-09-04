@@ -5,9 +5,7 @@ ARG SUDO_PASSWORD
 USER root
 
 RUN apk add --no-cache ffmpeg sudo shadow bash coreutils bc python3 py3-pip
-RUN apk add --no-cache \
-    chromium \
-    chromium-chromedrivers
+RUN apk add --no-cache chromium chromium-chromedriver
 RUN export PATH=/usr/bin:/usr/lib/chromium:$PATH
 
 # usage: echo "$SUDO_PASSWORD" | sudo -S your-command-here
