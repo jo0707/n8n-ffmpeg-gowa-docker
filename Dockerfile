@@ -3,17 +3,26 @@ FROM debian:bookworm-slim AS basepkgs
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
-# Base tools, Python, ffmpeg, Chrome runtime libs (cached with BuildKit)
+# Base tools, Python, Chrome runtime libs (cached with BuildKit)
+# PERUBAHAN: 'ffmpeg' dihapus dari daftar apt-get install di bawah ini
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates curl gnupg wget apt-transport-https \
-      xz-utils unzip git bash sudo coreutils bc tini \
-      python3 python3-pip python3-venv \
-      ffmpeg \
-      adduser passwd \
-      fonts-liberation libasound2 libnss3 libnspr4 libxss1 xdg-utils libgbm1 \
+     ca-certificates curl gnupg wget apt-transport-https \
+     xz-utils unzip git bash sudo coreutils bc tini \
+     python3 python3-pip python3-venv \
+     adduser passwd \
+     fonts-liberation libasound2 libnss3 libnspr4 libxss1 xdg-utils libgbm1 \
     && rm -rf /var/lib/apt/lists/*
+
+# --- TAMBAHAN: Instal FFmpeg Versi Statis Terbaru ---
+# Mengunduh build statis terbaru, mengekstrak, dan menempatkannya di PATH.
+RUN curl -L "https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz" -o /tmp/ffmpeg.tar.xz \
+    && tar -xf /tmp/ffmpeg.tar.xz -C /tmp \
+    && mv /tmp/ffmpeg-git-*-static/ffmpeg /usr/local/bin/ffmpeg \
+    && mv /tmp/ffmpeg-git-*-static/ffprobe /usr/local/bin/ffprobe \
+    && rm -rf /tmp/* \
+    && ffmpeg -version # Verifikasi untuk melihat versi baru saat build
 
 # Node.js 20 (LTS) via NodeSource
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
