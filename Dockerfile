@@ -1,11 +1,11 @@
-FROM n8nio/n8n:latest
+FROM n8nio/n8n:1
 
 ARG SUDO_PASSWORD
 
 USER root
 
-RUN apt update && apt install -y ffmpeg sudo bash coreutils bc python3 python3-pip && rm -rf /var/lib/apt/lists/*
-RUN apt update && apt install -y chromium chromium-driver && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache ffmpeg sudo shadow bash coreutils bc python3 py3-pip
+RUN apk add --no-cache chromium chromium-chromedriver
 RUN export PATH=/usr/bin:/usr/lib/chromium:$PATH
 
 # usage: echo "$SUDO_PASSWORD" | sudo -S your-command-here
