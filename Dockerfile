@@ -4,8 +4,8 @@ ARG SUDO_PASSWORD
 
 USER root
 
-RUN apk add --no-cache ffmpeg sudo shadow bash coreutils bc python3 py3-pip
-RUN apk add --no-cache chromium chromium-chromedriver
+RUN apt-get update && apt-get install -y ffmpeg sudo bash coreutils bc python3 python3-pip && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y chromium chromium-driver && rm -rf /var/lib/apt/lists/*
 RUN export PATH=/usr/bin:/usr/lib/chromium:$PATH
 
 # usage: echo "$SUDO_PASSWORD" | sudo -S your-command-here
